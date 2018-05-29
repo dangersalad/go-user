@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/base64"
+	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"regexp"
 	"strings"
@@ -9,6 +10,20 @@ import (
 
 var regexpUserPass = regexp.MustCompile(`^Basic (.*)$`)
 var regexpToken = regexp.MustCompile(`^Bearer (.*)$`)
+
+// CheckUserPass uses the AuthConfig to extract and check a username and
+// password from a provided authorization header string
+func CheckUserPass(conf *AuthConfig, authHeader string) (jwt.Claims, error) {
+	username, password, err := extractUserPass(authHeader)
+	if err != nil {
+		return nil, err
+	}
+	claims, err := conf.getLoginClaims(username, password)
+	if err != nil {
+		return nil, err
+	}
+	return claims, nil
+}
 
 // LoginHandlerFunc returns an http.HandlerFunc that logs in a user
 // with either a username/password or a token in the Authorization
@@ -20,7 +35,7 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 			conf.handleError(errLoginMissingAuth, w, r)
 			return
 		}
-		username, password, err := extractUserPass(authHeader)
+		claims, err := CheckUserPass(conf, authHeader)
 		if err != nil {
 			// if not found, try to do a token auth
 			if err == errLoginAuthNotFound {
@@ -41,12 +56,6 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 			return
 		}
 
-		claims, err := conf.getLoginClaims(username, password)
-		if err != nil {
-			conf.handleError(err, w, r)
-			return
-		}
-
 		token, err := MakeTokenString(claims)
 		if err != nil {
 			conf.handleError(err, w, r)
@@ -62,7 +71,7 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 }
 
 func extractToken(header string) (string, error) {
-	match := regexpUserPass.FindStringSubmatch(header)
+	match := regexpToken.FindStringSubmatch(header)
 	if match == nil {
 		return "", errLoginAuthNotFound
 	}

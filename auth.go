@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-// EnvKeyJWTKey is the environment key contianing the key for JWT
+// EnvKeyJWTKey is the environment key containing the key for JWT
 // hashing. Changing this will invalidate all active keys.
 const EnvKeyJWTKey = "JWT_KEY"
 
@@ -29,9 +29,13 @@ type Auther interface {
 	GetId() int64
 }
 
+// PasswordIsValid checks the password and a provided hash
+func PasswordIsValid(hash, pass string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)) == nil
+}
+
 func passwordValid(u Auther, pass string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(u.GetPassword()), []byte(pass))
-	return err != nil
+	return PasswordIsValid(u.GetPassword(), pass)
 }
 
 // MakePasswordHash makes a bcrypt password hash for the given password
@@ -65,7 +69,7 @@ func GetKey(token *jwt.Token) (interface{}, error) {
 // TODO: make sure this is OK
 func makeKey(key []byte) []byte {
 	hash := sha512.New()
-	result := []byte{}
+	var result []byte
 
 	hash.Write(key)
 	result = hash.Sum(result)
@@ -100,7 +104,6 @@ func SetToken(w http.ResponseWriter, origin, host string, claims jwt.Claims, coo
 }
 
 var originParse = regexp.MustCompile(`^(https?)://([^/]+).*$`)
-var domainParse = regexp.MustCompile(`^([^:]+).*`)
 
 // MakeCookie makes a cookie for use with http.SetCookie from a given
 // token string, origin and hostname
