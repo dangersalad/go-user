@@ -50,7 +50,7 @@ func MakePasswordHash(pass string) (string, error) {
 // GetKey returns the key for signing JWT tokens
 func GetKey(token *jwt.Token) (interface{}, error) {
 
-	if token != nil {
+	if token != nil && token.Claims != nil {
 		if err := token.Claims.Valid(); err != nil {
 			return nil, errors.Wrap(err, "invalid claims")
 		}
