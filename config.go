@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/dangersalad/go-commonerror"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"net/http"
@@ -77,13 +78,15 @@ func (c *AuthConfig) handleError(err error, w http.ResponseWriter, r *http.Reque
 		statusCode = http.StatusUnauthorized
 		code = http.StatusUnauthorized
 		message = "no auth"
-	} else if aErr, ok := err.(AuthErr); ok {
-		code = aErr.Code()
+	} else {
+		code = commonerror.Code(err, 500)
 		statusCode = code
 		if http.StatusText(code) == "" {
 			statusCode = http.StatusInternalServerError
 		}
-		message = aErr.Err().Error()
+		if err := commonerror.Err(err); err != nil {
+			message = err.Error()
+		}
 	}
 
 	w.WriteHeader(statusCode)
