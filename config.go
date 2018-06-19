@@ -38,9 +38,14 @@ func (c *AuthConfig) getIssuer() (string, error) {
 	return c.Issuer, nil
 }
 
+// GetTokenExpireTime returns a valid expire time in hours.
+func GetTokenExpireTime(hours int) int64 {
+	return time.Now().Add(time.Hour * time.Duration(hours)).Unix()
+}
+
 func (c *AuthConfig) getTokenExpireTime() int64 {
 	if c.ExpireTime == 0 {
-		return time.Now().Add(time.Hour * 6).Unix()
+		return GetTokenExpireTime(6)
 	}
 	return time.Now().Add(c.ExpireTime).Unix()
 }
