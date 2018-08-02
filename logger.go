@@ -2,6 +2,7 @@ package user
 
 type logger interface {
 	Debug(...interface{})
+	Debugf(string, ...interface{})
 	Printf(string, ...interface{})
 }
 
@@ -20,6 +21,13 @@ func debug(a ...interface{}) {
 }
 
 func logf(f string, a ...interface{}) {
+	if lg == nil {
+		return
+	}
+	lg.Printf(f, a...)
+}
+
+func debugf(f string, a ...interface{}) {
 	if lg == nil {
 		return
 	}
