@@ -155,7 +155,7 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 		if vErr, ok := err.(*jwt.ValidationError); ok {
 			if vErr.Errors&jwt.ValidationErrorMalformed != 0 {
 				return nil, errJWTMalformed
-			} else if vErr.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			} else if vErr.Errors&jwt.ValidationErrorExpired != 0 || vErr.Errors&jwt.ValidationErrorNotValidYet != 0 {
 				return nil, errJWTTime
 			} else if vErr.Errors&jwt.ValidationErrorSignatureInvalid != 0 {
 				return nil, errJWTSignature
