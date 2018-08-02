@@ -153,15 +153,30 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 	token, err = jwt.ParseWithClaims(tokenStr, claims, keyFunc)
 	if err != nil {
 		if vErr, ok := err.(*jwt.ValidationError); ok {
+			debug(vErr)
+			debugf("jwt.ValidationErrorMalformed        : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorMalformed, vErr.Errors&jwt.ValidationErrorMalformed)
+			debugf("jwt.ValidationErrorUnverifiable     : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorUnverifiable, vErr.Errors&jwt.ValidationErrorUnverifiable)
+			debugf("jwt.ValidationErrorSignatureInvalid : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorSignatureInvalid, vErr.Errors&jwt.ValidationErrorSignatureInvalid)
+			debugf("jwt.ValidationErrorAudience         : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorAudience, vErr.Errors&jwt.ValidationErrorAudience)
+			debugf("jwt.ValidationErrorExpired          : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorExpired, vErr.Errors&jwt.ValidationErrorExpired)
+			debugf("jwt.ValidationErrorIssuedAt         : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorIssuedAt, vErr.Errors&jwt.ValidationErrorIssuedAt)
+			debugf("jwt.ValidationErrorIssuer           : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorIssuer, vErr.Errors&jwt.ValidationErrorIssuer)
+			debugf("jwt.ValidationErrorNotValidYet      : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorNotValidYet, vErr.Errors&jwt.ValidationErrorNotValidYet)
+			debugf("jwt.ValidationErrorId               : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorId, vErr.Errors&jwt.ValidationErrorId)
+			debugf("jwt.ValidationErrorClaimsInvalid    : token errors %010b & %010b = %010b", vErr.Errors, jwt.ValidationErrorClaimsInvalid, vErr.Errors&jwt.ValidationErrorClaimsInvalid)
 			if vErr.Errors&jwt.ValidationErrorMalformed != 0 {
 				return nil, errJWTMalformed
-			} else if vErr.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			} else if vErr.Errors&jwt.ValidationErrorExpired != 0 || vErr.Errors&jwt.ValidationErrorNotValidYet != 0 {
+				debug("time error", errJWTTime, vErr)
 				return nil, errJWTTime
 			} else if vErr.Errors&jwt.ValidationErrorSignatureInvalid != 0 {
 				return nil, errJWTSignature
 			}
 		}
-		return nil, errors.Wrap(err, "parsing JWT")
+		return nil, &authErr{
+			err:  errors.Wrap(err, "parsing JWT"),
+			code: http.StatusUnauthorized,
+		}
 	}
 
 	if !token.Valid {
