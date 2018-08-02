@@ -154,16 +154,16 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 	if err != nil {
 		if vErr, ok := err.(*jwt.ValidationError); ok {
 			debug(vErr)
-			debugf("jwt.ValidationErrorMalformed		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorMalformed, vErr.Errors&jwt.ValidationErrorMalformed)
-			debugf("jwt.ValidationErrorUnverifiable		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorUnverifiable, vErr.Errors&jwt.ValidationErrorUnverifiable)
-			debugf("jwt.ValidationErrorSignatureInvalid	: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorSignatureInvalid, vErr.Errors&jwt.ValidationErrorSignatureInvalid)
-			debugf("jwt.ValidationErrorAudience			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorAudience, vErr.Errors&jwt.ValidationErrorAudience)
-			debugf("jwt.ValidationErrorExpired			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorExpired, vErr.Errors&jwt.ValidationErrorExpired)
-			debugf("jwt.ValidationErrorIssuedAt			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorIssuedAt, vErr.Errors&jwt.ValidationErrorIssuedAt)
-			debugf("jwt.ValidationErrorIssuer			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorIssuer, vErr.Errors&jwt.ValidationErrorIssuer)
-			debugf("jwt.ValidationErrorNotValidYet		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorNotValidYet, vErr.Errors&jwt.ValidationErrorNotValidYet)
-			debugf("jwt.ValidationErrorId				: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorId, vErr.Errors&jwt.ValidationErrorId)
-			debugf("jwt.ValidationErrorClaimsInvalid	: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorClaimsInvalid, vErr.Errors&jwt.ValidationErrorClaimsInvalid)
+			debugf("jwt.ValidationErrorMalformed		: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorMalformed, vErr.Errors&jwt.ValidationErrorMalformed)
+			debugf("jwt.ValidationErrorUnverifiable		: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorUnverifiable, vErr.Errors&jwt.ValidationErrorUnverifiable)
+			debugf("jwt.ValidationErrorSignatureInvalid	: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorSignatureInvalid, vErr.Errors&jwt.ValidationErrorSignatureInvalid)
+			debugf("jwt.ValidationErrorAudience			: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorAudience, vErr.Errors&jwt.ValidationErrorAudience)
+			debugf("jwt.ValidationErrorExpired			: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorExpired, vErr.Errors&jwt.ValidationErrorExpired)
+			debugf("jwt.ValidationErrorIssuedAt			: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorIssuedAt, vErr.Errors&jwt.ValidationErrorIssuedAt)
+			debugf("jwt.ValidationErrorIssuer			: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorIssuer, vErr.Errors&jwt.ValidationErrorIssuer)
+			debugf("jwt.ValidationErrorNotValidYet		: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorNotValidYet, vErr.Errors&jwt.ValidationErrorNotValidYet)
+			debugf("jwt.ValidationErrorId				: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorId, vErr.Errors&jwt.ValidationErrorId)
+			debugf("jwt.ValidationErrorClaimsInvalid	: token errors %10b & %10b = %10b", vErr.Errors, jwt.ValidationErrorClaimsInvalid, vErr.Errors&jwt.ValidationErrorClaimsInvalid)
 			if vErr.Errors&jwt.ValidationErrorMalformed != 0 {
 				return nil, errJWTMalformed
 			} else if vErr.Errors&jwt.ValidationErrorExpired != 0 || vErr.Errors&jwt.ValidationErrorNotValidYet != 0 {
@@ -173,7 +173,10 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 				return nil, errJWTSignature
 			}
 		}
-		return nil, errors.Wrap(err, "parsing JWT")
+		return nil, &authErr{
+			err:  errors.Wrap(err, "parsing JWT"),
+			code: http.StatusUnauthorized,
+		}
 	}
 
 	if !token.Valid {
