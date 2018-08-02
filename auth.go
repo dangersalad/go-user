@@ -153,7 +153,17 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 	token, err = jwt.ParseWithClaims(tokenStr, claims, keyFunc)
 	if err != nil {
 		if vErr, ok := err.(*jwt.ValidationError); ok {
-			debugf("token errors %d & %d = %d", vErr.Errors, jwt.ValidationErrorExpired, vErr.Errors&jwt.ValidationErrorExpired)
+			debug(vErr)
+			debugf("jwt.ValidationErrorMalformed		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorMalformed, vErr.Errors&jwt.ValidationErrorMalformed)
+			debugf("jwt.ValidationErrorUnverifiable		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorUnverifiable, vErr.Errors&jwt.ValidationErrorUnverifiable)
+			debugf("jwt.ValidationErrorSignatureInvalid	: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorSignatureInvalid, vErr.Errors&jwt.ValidationErrorSignatureInvalid)
+			debugf("jwt.ValidationErrorAudience			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorAudience, vErr.Errors&jwt.ValidationErrorAudience)
+			debugf("jwt.ValidationErrorExpired			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorExpired, vErr.Errors&jwt.ValidationErrorExpired)
+			debugf("jwt.ValidationErrorIssuedAt			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorIssuedAt, vErr.Errors&jwt.ValidationErrorIssuedAt)
+			debugf("jwt.ValidationErrorIssuer			: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorIssuer, vErr.Errors&jwt.ValidationErrorIssuer)
+			debugf("jwt.ValidationErrorNotValidYet		: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorNotValidYet, vErr.Errors&jwt.ValidationErrorNotValidYet)
+			debugf("jwt.ValidationErrorId				: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorId, vErr.Errors&jwt.ValidationErrorId)
+			debugf("jwt.ValidationErrorClaimsInvalid	: token errors %b & %b = %b", vErr.Errors, jwt.ValidationErrorClaimsInvalid, vErr.Errors&jwt.ValidationErrorClaimsInvalid)
 			if vErr.Errors&jwt.ValidationErrorMalformed != 0 {
 				return nil, errJWTMalformed
 			} else if vErr.Errors&jwt.ValidationErrorExpired != 0 || vErr.Errors&jwt.ValidationErrorNotValidYet != 0 {
