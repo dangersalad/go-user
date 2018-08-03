@@ -18,7 +18,10 @@ func TokenCheckHandler(h http.Handler, conf *AuthConfig) http.Handler {
 
 		cookie, err := r.Cookie(conf.cookieName())
 		if err != nil {
-			conf.handleError(err, w, r)
+			conf.handleError(&authErr{
+				code: http.StatusUnauthorized,
+				err:  errors.Wrap("getting cookie"),
+			}, w, r)
 			return
 		}
 
