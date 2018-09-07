@@ -18,7 +18,7 @@ type Bypass struct {
 
 func (b *Bypass) CanBypass(method, path string) bool {
 	if r, ok := b.Routes[method]; ok {
-		r.MatchString(path)
+		return r.MatchString(path)
 	}
 	return false
 }
