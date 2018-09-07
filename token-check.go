@@ -12,7 +12,7 @@ func TokenCheckHandler(h http.Handler, conf *AuthConfig) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// if we are trying to authenticate, let the request go on
-		if conf.Bypass != nil && conf.Bypass.MatchString(r.URL.Path) {
+		if conf.Bypass != nil && conf.Bypass.CanBypass(r.Method, r.URL.Path) {
 			h.ServeHTTP(w, r)
 			return
 		}

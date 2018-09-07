@@ -1,0 +1,5 @@
+github.com/dangersalad/go-commonerror v0.1.2/go.mod h1:vTQLRbjbjDM1bzLHt9vDGgHjfGbK12h+KKI5D+5655M=
+github.com/dangersalad/go-environment v0.2.2/go.mod h1:tq28E5WUhlOKAY5d2nbTFk0i0E6MnGjzLLNCR0Lo4dE=
+github.com/dgrijalva/jwt-go v0.0.0-20180308231308-06ea1031745c/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
+github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+golang.org/x/crypto v0.0.0-20180509205747-2d027ae1dddd/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=

@@ -12,11 +12,22 @@ import (
 
 var defaultCookieName = "auth-jwt"
 
+type Bypass struct {
+	Routes map[string]*regexp.Regexp
+}
+
+func (b *Bypass) CanBypass(method, path string) bool {
+	if r, ok := b.Routes[method]; ok {
+		r.MatchString(path)
+	}
+	return false
+}
+
 // AuthConfig is the configuration for auth check handler
 type AuthConfig struct {
 	Cookie         string
 	Issuer         string
-	Bypass         *regexp.Regexp
+	Bypass         *Bypass
 	ExpireTime     time.Duration
 	GetUser        func(username string) (Auther, error)
 	GetLoginClaims func(username, password string) (jwt.Claims, error)
