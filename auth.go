@@ -26,7 +26,7 @@ type Claims struct {
 type Auther interface {
 	GetUsername() string
 	GetPassword() string
-	GetId() int64
+	GetID() int64
 }
 
 // PasswordIsValid checks the password and a provided hash

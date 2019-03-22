@@ -12,10 +12,12 @@ import (
 
 var defaultCookieName = "auth-jwt"
 
+// Bypass represents bypasses for certain methods and routes
 type Bypass struct {
 	Routes map[string]*regexp.Regexp
 }
 
+// CanBypass determines if the auth is bypassed for the specified method and route
 func (b *Bypass) CanBypass(method, path string) bool {
 	if r, ok := b.Routes[method]; ok {
 		return r.MatchString(path)
@@ -146,7 +148,7 @@ func (c *AuthConfig) getLoginClaims(username, password string) (jwt.Claims, erro
 
 	return &Claims{
 		Username: u.GetUsername(),
-		UserID:   u.GetId(),
+		UserID:   u.GetID(),
 		StandardClaims: jwt.StandardClaims{
 			// TODO: lower expire time
 			ExpiresAt: c.getTokenExpireTime(),
