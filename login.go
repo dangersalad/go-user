@@ -20,6 +20,7 @@ func CheckUserPass(conf *AuthConfig, authHeader string) (jwt.Claims, error) {
 	}
 	claims, err := conf.getLoginClaims(username, password)
 	if err != nil {
+		conf.loginFailureHook(err, username)
 		return nil, err
 	}
 	return claims, nil

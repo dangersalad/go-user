@@ -36,6 +36,7 @@ type AuthConfig struct {
 	UpdateClaims         func(token string) (jwt.Claims, error)
 	ErrorHandler         func(error, http.ResponseWriter, *http.Request)
 	LoginResponseHandler func(http.ResponseWriter, jwt.Claims) error
+	LoginFailureHook     func(error, string)
 }
 
 func (c *AuthConfig) cookieName() string {
@@ -163,4 +164,10 @@ func (c *AuthConfig) handleLoginResponse(w http.ResponseWriter, claims jwt.Claim
 		return c.LoginResponseHandler(w, claims)
 	}
 	return nil
+}
+
+func (c *AuthConfig) loginFailureHook(err error, username string) {
+	if c.LoginFailureHook != nil {
+		c.LoginFailureHook(err, username)
+	}
 }
