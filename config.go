@@ -27,14 +27,15 @@ func (b *Bypass) CanBypass(method, path string) bool {
 
 // AuthConfig is the configuration for auth check handler
 type AuthConfig struct {
-	Cookie         string
-	Issuer         string
-	Bypass         *Bypass
-	ExpireTime     time.Duration
-	GetUser        func(username string) (Auther, error)
-	GetLoginClaims func(username, password string) (jwt.Claims, error)
-	UpdateClaims   func(token string) (jwt.Claims, error)
-	ErrorHandler   func(error, http.ResponseWriter, *http.Request)
+	Cookie               string
+	Issuer               string
+	Bypass               *Bypass
+	ExpireTime           time.Duration
+	GetUser              func(username string) (Auther, error)
+	GetLoginClaims       func(username, password string) (jwt.Claims, error)
+	UpdateClaims         func(token string) (jwt.Claims, error)
+	ErrorHandler         func(error, http.ResponseWriter, *http.Request)
+	LoginResponseHandler func(http.ResponseWriter, jwt.Claims) error
 }
 
 func (c *AuthConfig) cookieName() string {
@@ -155,4 +156,11 @@ func (c *AuthConfig) getLoginClaims(username, password string) (jwt.Claims, erro
 			Issuer:    issuer,
 		},
 	}, nil
+}
+
+func (c *AuthConfig) handleLoginResponse(w http.ResponseWriter, claims jwt.Claims) error {
+	if c.LoginResponseHandler != nil {
+		return c.LoginResponseHandler(w, claims)
+	}
+	return nil
 }

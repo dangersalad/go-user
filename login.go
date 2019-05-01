@@ -66,6 +66,10 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 		http.SetCookie(w, cookie)
 
 		w.WriteHeader(http.StatusAccepted)
+		if err := conf.handleLoginResponse(w, claims); err != nil {
+			conf.handleError(err, w, r)
+			return
+		}
 		return
 	})
 }
