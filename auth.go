@@ -88,10 +88,10 @@ func makeKey(key []byte) []byte {
 
 // SetToken takes JWT claims and generates a cookie, which is then set
 // on the given http.ResponseWriter
-func SetToken(w http.ResponseWriter, origin, host string, claims jwt.Claims, cookieName string) error {
+func SetToken(w http.ResponseWriter, origin, host string, claims jwt.Claims, cookieName string, keyFunc jwt.Keyfunc) error {
 
 	// get token string
-	token, err := MakeTokenString(claims)
+	token, err := MakeTokenString(claims, keyFunc)
 	if err != nil {
 		return err
 	}

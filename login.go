@@ -52,7 +52,7 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 			return
 		}
 
-		token, err := MakeTokenString(claims)
+		token, err := MakeTokenString(claims, conf.GetKey)
 		if err != nil {
 			conf.handleError(err, w, r)
 			return
