@@ -62,6 +62,10 @@ func (c *AuthConfig) getTokenExpireTime() int64 {
 	if c.ExpireTime == 0 {
 		return GetTokenExpireTime(6)
 	}
+	// if the expire time is negative, the token should not expire, return 0 for an empty value
+	if c.ExpireTime < 0 {
+		return 0
+	}
 	return time.Now().Add(c.ExpireTime).Unix()
 }
 
