@@ -129,11 +129,15 @@ func MakeCookie(token, origin, host string, cookieName string) *http.Cookie {
 }
 
 // MakeTokenString makes a JWT token string from a given set of claims
-func MakeTokenString(claims jwt.Claims) (string, error) {
+func MakeTokenString(claims jwt.Claims, keyFunc jwt.Keyfunc) (string, error) {
 	// make a new token with the user claims we want
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	key, err := GetKey(token)
+	if keyFunc == nil {
+		keyFunc = GetKey
+	}
+
+	key, err := keyFunc(token)
 	if err != nil {
 		return "", err
 	}
@@ -150,6 +154,9 @@ func MakeTokenString(claims jwt.Claims) (string, error) {
 
 // CheckTokenString verifies that a JWT token string is valid
 func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (token *jwt.Token, err error) {
+	if keyFunc == nil {
+		keyFunc = GetKey
+	}
 	token, err = jwt.ParseWithClaims(tokenStr, claims, keyFunc)
 	if err != nil {
 		if vErr, ok := err.(*jwt.ValidationError); ok {
@@ -188,8 +195,8 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 }
 
 // ExtractClaims gets the claims from a given token string
-func ExtractClaims(tokenStr string, claims jwt.Claims) (jwt.Claims, error) {
-	token, err := CheckTokenString(tokenStr, claims, GetKey)
+func ExtractClaims(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (jwt.Claims, error) {
+	token, err := CheckTokenString(tokenStr, claims, keyFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -197,8 +204,8 @@ func ExtractClaims(tokenStr string, claims jwt.Claims) (jwt.Claims, error) {
 }
 
 // ExtractDefaultClaims gets the default claims from a given token string
-func ExtractDefaultClaims(tokenStr string) (*Claims, error) {
-	token, err := CheckTokenString(tokenStr, &Claims{}, GetKey)
+func ExtractDefaultClaims(tokenStr string, keyFunc jwt.Keyfunc) (*Claims, error) {
+	token, err := CheckTokenString(tokenStr, &Claims{}, keyFunc)
 	if err != nil {
 		return nil, err
 	}

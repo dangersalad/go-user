@@ -32,6 +32,7 @@ type AuthConfig struct {
 	Bypass               *Bypass
 	ExpireTime           time.Duration
 	GetUser              func(username string) (Auther, error)
+	GetKey               jwt.Keyfunc
 	GetLoginClaims       func(username, password string) (jwt.Claims, error)
 	UpdateClaims         func(token string) (jwt.Claims, error)
 	ErrorHandler         func(error, http.ResponseWriter, *http.Request)
@@ -80,7 +81,7 @@ func (c *AuthConfig) updateClaims(t string) (jwt.Claims, error) {
 	if c.UpdateClaims != nil {
 		return c.UpdateClaims(t)
 	}
-	claims, err := ExtractDefaultClaims(t)
+	claims, err := ExtractDefaultClaims(t, c.GetKey)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (c *AuthConfig) updateAndSetCookie(token string, w http.ResponseWriter, r *
 		return nil, "", err
 	}
 
-	token, err = MakeTokenString(claims)
+	token, err = MakeTokenString(claims, c.GetKey)
 	if err != nil {
 		return nil, "", err
 	}
