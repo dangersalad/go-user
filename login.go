@@ -13,8 +13,8 @@ var regexpToken = regexp.MustCompile(`^Bearer (.*)$`)
 
 // CheckUserPass uses the AuthConfig to extract and check a username and
 // password from a provided authorization header string
-func CheckUserPass(conf *AuthConfig, authHeader string) (jwt.Claims, error) {
-	username, password, err := extractUserPass(authHeader)
+func CheckUserPass(conf *AuthConfig, r *http.Request) (jwt.Claims, error) {
+	username, password, err := ExtractUserPass(r)
 	if err != nil {
 		return nil, err
 	}
@@ -31,16 +31,11 @@ func CheckUserPass(conf *AuthConfig, authHeader string) (jwt.Claims, error) {
 // header and returns a 201 with the user's token in a cookie
 func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("authorization")
-		if authHeader == "" {
-			conf.handleError(errLoginMissingAuth, w, r)
-			return
-		}
-		claims, err := CheckUserPass(conf, authHeader)
+		claims, err := CheckUserPass(conf, r)
 		if err != nil {
 			// if not found, try to do a token auth
 			if err == errLoginAuthNotFound {
-				token, err := extractToken(authHeader)
+				token, err := extractToken(r)
 				if err != nil {
 					conf.handleError(err, w, r)
 					return
@@ -75,7 +70,11 @@ func LoginHandlerFunc(conf *AuthConfig) http.HandlerFunc {
 	})
 }
 
-func extractToken(header string) (string, error) {
+func extractToken(r *http.Request) (string, error) {
+	header := r.Header.Get("authorization")
+	if header == "" {
+		return "", errLoginMissingAuth
+	}
 	match := regexpToken.FindStringSubmatch(header)
 	if match == nil {
 		return "", errLoginAuthNotFound
@@ -86,7 +85,12 @@ func extractToken(header string) (string, error) {
 	return match[1], nil
 }
 
-func extractUserPass(header string) (string, string, error) {
+// ExtractUserPass extracts a username or password from a request
+func ExtractUserPass(r *http.Request) (string, string, error) {
+	header := r.Header.Get("authorization")
+	if header == "" {
+		return "", "", errLoginMissingAuth
+	}
 	match := regexpUserPass.FindStringSubmatch(header)
 	if match == nil {
 		return "", "", errLoginAuthNotFound
