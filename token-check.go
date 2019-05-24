@@ -34,8 +34,8 @@ func TokenCheckHandler(h http.Handler, conf *AuthConfig) http.Handler {
 
 		// now that we have the claims and validated the token,
 		// set some values on the request context
-		r = r.WithContext(context.WithValue(r.Context(), contextKeyClaims, claims))
-		r = r.WithContext(context.WithValue(r.Context(), contextKeyToken, token))
+		r = r.WithContext(context.WithValue(r.Context(), ContextKeyClaims, claims))
+		r = r.WithContext(context.WithValue(r.Context(), ContextKeyToken, token))
 		h.ServeHTTP(w, r)
 
 	})
