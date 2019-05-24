@@ -13,19 +13,21 @@ func (c contextKey) String() string {
 }
 
 var (
-	contextKeyClaims = contextKey("dangersalad/go-user:jwt-claims")
-	contextKeyToken  = contextKey("dangersalad/go-user:jwt-token")
+	// ContextKeyClaims is the context key for claims
+	ContextKeyClaims = contextKey("dangersalad/go-user:jwt-claims")
+	// ContextKeyToken is the context key for the token string
+	ContextKeyToken = contextKey("dangersalad/go-user:jwt-token")
 )
 
 // ContextClaims returns the JWT claims stored on the context
 func ContextClaims(ctx context.Context) (jwt.Claims, bool) {
-	v, ok := ctx.Value(contextKeyClaims).(jwt.Claims)
+	v, ok := ctx.Value(ContextKeyClaims).(jwt.Claims)
 	return v, ok
 }
 
 // ContextToken returns the JWT token stored on the context
 func ContextToken(ctx context.Context) (string, bool) {
-	v, ok := ctx.Value(contextKeyToken).(string)
+	v, ok := ctx.Value(ContextKeyToken).(string)
 	return v, ok
 }
 
