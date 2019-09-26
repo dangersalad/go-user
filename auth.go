@@ -2,12 +2,13 @@ package user
 
 import (
 	"crypto/sha512"
-	env "github.com/dangersalad/go-environment"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
+	"fmt"
 	"net/http"
 	"regexp"
+
+	env "github.com/dangersalad/go-environment"
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // EnvKeyJWTKey is the environment key containing the key for JWT
@@ -42,7 +43,7 @@ func passwordValid(u Auther, pass string) bool {
 func MakePasswordHash(pass string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), 8)
 	if err != nil {
-		return "", errors.Wrap(err, "making password")
+		return "", fmt.Errorf("making password: %w", err)
 	}
 	return string(hash), nil
 }
@@ -52,7 +53,7 @@ func GetKey(token *jwt.Token) (interface{}, error) {
 
 	if token != nil && token.Claims != nil {
 		if err := token.Claims.Valid(); err != nil {
-			return nil, errors.Wrap(err, "invalid claims")
+			return nil, fmt.Errorf("invalid claims: %w", err)
 		}
 	}
 
@@ -60,7 +61,7 @@ func GetKey(token *jwt.Token) (interface{}, error) {
 		EnvKeyJWTKey: "",
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "getting JWT key from env")
+		return nil, fmt.Errorf("getting JWT key from env: %w", err)
 	}
 
 	// use the provided env var to make a key
@@ -145,7 +146,7 @@ func MakeTokenString(claims jwt.Claims, keyFunc jwt.Keyfunc) (string, error) {
 	// sign the token using the secret key
 	signedToken, err := token.SignedString(key)
 	if err != nil {
-		return "", errors.Wrap(err, "signing token")
+		return "", fmt.Errorf("signing token: %w", err)
 	}
 
 	return signedToken, nil
@@ -181,7 +182,7 @@ func CheckTokenString(tokenStr string, claims jwt.Claims, keyFunc jwt.Keyfunc) (
 			}
 		}
 		return nil, &authErr{
-			err:  errors.Wrap(err, "parsing JWT"),
+			err:  fmt.Errorf("parsing JWT: %w", err),
 			code: http.StatusUnauthorized,
 		}
 	}
@@ -214,5 +215,5 @@ func ExtractDefaultClaims(tokenStr string, keyFunc jwt.Keyfunc) (*Claims, error)
 	if claims, ok := token.Claims.(*Claims); ok {
 		return claims, nil
 	}
-	return nil, errors.New("invalid claims")
+	return nil, fmt.Errorf("invalid claims")
 }

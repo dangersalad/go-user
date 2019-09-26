@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"github.com/pkg/errors"
+	"fmt"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ func TokenCheckHandler(h http.Handler, conf *AuthConfig) http.Handler {
 		if err != nil {
 			conf.handleError(&authErr{
 				code: http.StatusUnauthorized,
-				err:  errors.Wrap(err, "getting cookie"),
+				err:  fmt.Errorf("getting cookie: %w", err),
 			}, w, r)
 			return
 		}

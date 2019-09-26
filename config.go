@@ -2,12 +2,12 @@ package user
 
 import (
 	"fmt"
-	"github.com/dangersalad/go-commonerror"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	"net/http"
 	"regexp"
 	"time"
+
+	"github.com/dangersalad/go-commonerror"
+	"github.com/dgrijalva/jwt-go"
 )
 
 var defaultCookieName = "auth-jwt"
@@ -49,7 +49,7 @@ func (c *AuthConfig) cookieName() string {
 
 func (c *AuthConfig) getIssuer() (string, error) {
 	if c.Issuer == "" {
-		return "", errors.New("Issuer must be defined on the provided AuthConfig")
+		return "", fmt.Errorf("Issuer must be defined on the provided AuthConfig")
 	}
 	return c.Issuer, nil
 }
@@ -72,7 +72,7 @@ func (c *AuthConfig) getTokenExpireTime() int64 {
 
 func (c *AuthConfig) getUser(username string) (Auther, error) {
 	if c.GetUser == nil {
-		return nil, errors.New("GetUser must be defined on the provided AuthConfig")
+		return nil, fmt.Errorf("GetUser must be defined on the provided AuthConfig")
 	}
 	return c.GetUser(username)
 }
