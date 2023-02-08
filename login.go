@@ -2,7 +2,7 @@ package user
 
 import (
 	"encoding/base64"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"regexp"
 	"strings"
